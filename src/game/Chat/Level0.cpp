@@ -304,3 +304,41 @@ bool ChatHandler::HandleWhisperRestrictionCommand(char* args)
 
     return true;
 }
+
+bool ChatHandler::HandleXPCommandSet(char* args)
+{
+    Player* player = m_session->GetPlayer();
+
+    //uint32 maxrate = 5000; works fine
+    uint32 modifier = 0;
+    uint32 maxrate = sWorld.getConfig(CONFIG_UINT32_MAX_XP_RATE);
+
+    
+    if (!ExtractUInt32(&args, modifier))
+    {
+        PSendSysMessage("The XP rate you've chosen is not a valid number.", modifier);
+        return false;
+    }
+
+    if (modifier && modifier <= maxrate)
+    {
+        player->SetPlayerXPModifier(modifier);
+        PSendSysMessage("You have set your XP rate to: %u.", modifier);
+    }
+    else
+    {
+        PSendSysMessage("Your XP rate is not valid, allowed values are: 1 - %u.", maxrate);
+        return false;
+    }
+
+    return true;
+}
+
+bool ChatHandler::HandleXPCommandCurrent(char* /*args*/)
+{
+    Player* player = m_session->GetPlayer();
+
+    PSendSysMessage("Your current XP rate is set to: %u.", player->GetPlayerXPModifier());
+
+    return true;
+}

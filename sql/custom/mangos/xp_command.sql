@@ -1,0 +1,1 @@
+INSERT INTO command VALUES('xp', '0', 'Syntax: .xp #subcommand XP rate commands');

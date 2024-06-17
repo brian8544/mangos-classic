@@ -141,6 +141,9 @@ World::World(): mail_timer(0), mail_timer_expires(0), m_NextWeeklyQuestReset(0),
 
     for (bool& m_configBoolValue : m_configBoolValues)
         m_configBoolValue = false;
+
+    for (int i = 0; i < 2; ++i)
+        for (int k = 0; k < MAX_PLAYER_LEVEL; ++k);
 }
 
 /// World destructor
@@ -732,6 +735,8 @@ void World::LoadConfigSettings(bool reload)
 
     setConfig(CONFIG_BOOL_LFG_MATCHMAKING,            "LFG.Matchmaking", false);
     setConfig(CONFIG_UINT32_LFG_MATCHMAKING_TIMER,    "LFG.MatchmakingTimer", 600);
+
+    setConfig(CONFIG_UINT32_MAX_XP_RATE, "Max.XPRate", 1);
 
     m_relocation_ai_notify_delay = sConfig.GetIntDefault("Visibility.AIRelocationNotifyDelay", 1000u);
     m_relocation_lower_limit_sq = pow(sConfig.GetFloatDefault("Visibility.RelocationLowerLimit", 10), 2);
@@ -1342,7 +1347,7 @@ void World::SetInitialWorldSettings()
     // 1440
     mail_timer_expires = uint32((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
     DEBUG_LOG("Mail timer set to: %u, mail return is called every %u minutes", mail_timer, mail_timer_expires);
-
+  
     ///- Initialize static helper structures
     AIRegistry::Initialize();
 
@@ -1490,11 +1495,13 @@ void World::Update(uint32 diff)
 
     m_averageDiff = (uint32)(m_currentDiffSum / m_histDiff.size());
 
+    /*
     if (m_currentDiffSumIndex && m_currentDiffSumIndex % 60 == 0)
     {
         sLog.outBasic("Avg Diff: %u. Sessions online: %u.", m_averageDiff, (uint32)GetActiveSessionCount());
         sLog.outBasic("Max Diff: %u.", m_maxDiff);
     }
+    */
 
     if (m_currentDiffSum % 3000 == 0)
     {

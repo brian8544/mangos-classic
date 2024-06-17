@@ -78,6 +78,11 @@ typedef std::deque<Mail*> PlayerMails;
 // TODO: Maybe this can be implemented in configuration file.
 #define PLAYER_NEW_INSTANCE_LIMIT_PER_HOUR 5
 
+enum PlayerSettings
+{
+    DYNAMIC_XP_RATE_MODIFIER = 1,
+};
+
 enum EnvironmentFlags
 {
     ENVIRONMENT_FLAG_NONE           = 0x00,
@@ -2175,6 +2180,11 @@ class Player : public Unit
         virtual CombatData const* GetCombatData() const override { if (m_charmInfo && m_charmInfo->GetCombatData()) return m_charmInfo->GetCombatData(); return m_combatData; }
         void ForceHealAndPowerUpdateInZone();
 
+        uint32 GetPlayerXPModifier() { return m_experienceModifier; }
+        void SetPlayerXPModifier(uint32 modifier) { m_experienceModifier = modifier; }
+        void _SaveXPModifier();
+        void SendXPRateToPlayer();
+
         void SendMessageToPlayer(std::string const& message) const; // debugging purposes
 
 #ifdef BUILD_DEPRECATED_PLAYERBOT
@@ -2320,6 +2330,8 @@ class Player : public Unit
         void _SaveSpells();
         void _SaveBGData();
         void _SaveStats();
+
+        uint32 m_experienceModifier;
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/

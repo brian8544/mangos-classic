@@ -2671,6 +2671,13 @@ void Player::GiveXP(uint32 xp, Creature* victim, float groupRate)
     if (level >= sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
         return;
 
+    xp *= m_experienceModifier;
+    if (m_experienceModifier)
+    {
+        SetPlayerXPModifier(DYNAMIC_XP_RATE_MODIFIER);
+        SendXPRateToPlayer();
+    }
+
     // XP resting bonus for kill
     uint32 rested_bonus_xp = victim ? GetXPRestBonus(xp) : 0;
 
@@ -14458,6 +14465,22 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     _LoadSpellCooldowns(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
     _LoadCreatedInstanceTimers();
 
+    std::unique_ptr<QueryResult> result = CharacterDatabase.PQuery("SELECT value FROM character_individualxp WHERE guid = %u AND id = %u", GetGUIDLow(), DYNAMIC_XP_RATE_MODIFIER);
+    if (result)
+    {
+        Field* fields = result->Fetch();
+        m_experienceModifier = fields[0].GetUInt32();
+        if (m_experienceModifier)
+        {
+            m_experienceModifier;
+            CharacterDatabase.PExecute("UPDATE character_individualxp SET value = '%u' WHERE guid = '%u' AND id = '%u'", m_experienceModifier, GetGUIDLow(), DYNAMIC_XP_RATE_MODIFIER);
+        }
+    }
+    else
+    {
+        m_experienceModifier = 1;
+    }
+
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
     if (!IsAlive())
@@ -15687,6 +15710,8 @@ void Player::SaveToDB()
     m_reputationMgr.SaveToDB();
     _SaveHonorCP();
     GetSession()->SaveTutorialsData();                      // changed only while character in game
+
+    _SaveXPModifier();
 
     CharacterDatabase.CommitTransaction();
 
@@ -17353,6 +17378,35 @@ void Player::OnTaxiFlightRouteProgress(const TaxiPathNodeEntry* node, const Taxi
         else
             ChatHandler(this).PSendSysMessage(LANG_TAXI_DEBUG_NODE_FINAL, node->path, node->index);
     }
+}
+
+void Player::_SaveXPModifier()
+{
+    std::unique_ptr<QueryResult> result = CharacterDatabase.PQuery("SELECT value FROM character_individualxp WHERE guid = %u AND id = %u", GetGUIDLow(), DYNAMIC_XP_RATE_MODIFIER);
+
+    if (result)
+    {
+        Field* fields = result->Fetch();
+        uint32 modifier = fields[0].GetUInt32();
+
+        // Saving to database during PlayerSave.Interval:
+        if (modifier != m_experienceModifier)
+            CharacterDatabase.PExecute("UPDATE character_individualxp SET value = '%u' WHERE guid = '%u' AND id = '%u'", m_experienceModifier, GetGUIDLow(), DYNAMIC_XP_RATE_MODIFIER);
+    }
+    else
+    {
+        // Fresh character:
+        CharacterDatabase.PExecute("INSERT INTO character_individualxp(guid,id,value) VALUES('%u','%u','%u')", GetGUIDLow(), DYNAMIC_XP_RATE_MODIFIER, m_experienceModifier);
+    }
+}
+
+void Player::SendXPRateToPlayer()
+{
+    std::string xpLine = "Your current XP rate is: " + std::to_string(m_experienceModifier) + "x.\n";
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, xpLine.data(), LANG_UNIVERSAL, CHAT_TAG_NONE, GetObjectGuid());
+    if (WorldSession* session = GetSession())
+        session->SendPacket(data);
 }
 
 void Player::InitDataForForm(bool reapplyMods)

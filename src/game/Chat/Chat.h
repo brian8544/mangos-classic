@@ -630,6 +630,9 @@ class ChatHandler
         bool HandleSendMassMailCommand(char* args);
         bool HandleSendMassMoneyCommand(char* args);
 
+        bool HandleXPCommandSet(char* args);
+        bool HandleXPCommandCurrent(char* args);
+
         bool HandleServerCorpsesCommand(char* args);
         bool HandleServerExitCommand(char* args);
         bool HandleServerIdleRestartCommand(char* args);

@@ -198,6 +198,7 @@ enum eConfigUInt32Values
     CONFIG_UINT32_CREATURE_PICKPOCKET_RESTOCK_DELAY,
     CONFIG_UINT32_CHANNEL_STATIC_AUTO_TRESHOLD,
     CONFIG_UINT32_LFG_MATCHMAKING_TIMER,
+    CONFIG_UINT32_MAX_XP_RATE,
     CONFIG_UINT32_VALUE_COUNT
 };
 
@@ -399,6 +400,8 @@ enum RealmZone
     REALM_ZONE_QA_SERVER     = 28,                          // any language
     REALM_ZONE_CN9           = 29                           // basic-Latin at create, any at login
 };
+
+#define MAX_PLAYER_LEVEL 255
 
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder

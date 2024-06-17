@@ -68,6 +68,13 @@ bool ChatHandler::load_command_table = true;
 
 ChatCommand* ChatHandler::getCommandTable()
 {
+    static ChatCommand xpCommandTable[] =
+    {
+        { "set",            SEC_PLAYER,         true,  &ChatHandler::HandleXPCommandSet,               "", nullptr },
+        { "current",        SEC_PLAYER,         true,  &ChatHandler::HandleXPCommandCurrent,           "", nullptr },
+        { nullptr,          0,                  false, nullptr,                                        "", nullptr }
+    };
+
     static ChatCommand accountSetCommandTable[] =
     {
         { "addon",          SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleAccountSetAddonCommand,     "", nullptr },
@@ -1011,6 +1018,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "mmap",           SEC_GAMEMASTER,     false, nullptr,                                        "", mmapCommandTable },
         { "worldstate",     SEC_ADMINISTRATOR,  false, nullptr,                                        "", worldStateTable },
         { "loot",           SEC_GAMEMASTER,     true,  nullptr,                                        "", lootCommandTable },
+        { "xp",             SEC_PLAYER,         false, nullptr,                                        "", xpCommandTable },
 #ifdef BUILD_DEPRECATED_PLAYERBOT
         { "bot",            SEC_PLAYER,         false, &ChatHandler::HandlePlayerbotCommand,           "", nullptr },
 #endif
