@@ -323,11 +323,11 @@ bool ChatHandler::HandleXPCommandSet(char* args)
     if (modifier && modifier <= maxrate)
     {
         player->SetPlayerXPModifier(modifier);
-        PSendSysMessage("You have set your XP rate to: %u.", modifier);
+        PSendSysMessage("You have set your XP rate to: %ux.", modifier);
     }
     else
     {
-        PSendSysMessage("Your XP rate is not valid, allowed values are: 1 - %u.", maxrate);
+        PSendSysMessage("Your XP rate is not valid, allowed values are: 1 - %ux.", maxrate);
         return false;
     }
 
@@ -338,7 +338,7 @@ bool ChatHandler::HandleXPCommandCurrent(char* /*args*/)
 {
     Player* player = m_session->GetPlayer();
 
-    PSendSysMessage("Your current XP rate is set to: %u.", player->GetPlayerXPModifier());
+    PSendSysMessage("Your current XP rate is set to: %ux.", player->GetPlayerXPModifier());
 
     return true;
 }
