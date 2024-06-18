@@ -309,7 +309,6 @@ bool ChatHandler::HandleXPCommandSet(char* args)
 {
     Player* player = m_session->GetPlayer();
 
-    //uint32 maxrate = 5000; works fine
     uint32 modifier = 0;
     uint32 maxrate = sWorld.getConfig(CONFIG_UINT32_MAX_XP_RATE);
 
